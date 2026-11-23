@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de captura PStory</title>
+<style>
+:root{--bg:#f2f5f7;--surface:#fff;--ink:#15232d;--muted:#5b6b76;--line:#d5dde3;--accent:#c8312b;--accent-ink:#fff;--soft:#e8eef2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181e;--surface:#18232b;--ink:#e8eef2;--muted:#93a4af;--line:#2b3a45;--accent:#ee5b53;--accent-ink:#10181e;--soft:#1f2d37;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10181e;--surface:#18232b;--ink:#e8eef2;--muted:#93a4af;--line:#2b3a45;--accent:#ee5b53;--accent-ink:#10181e;--soft:#1f2d37;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:900px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px;max-width:60ch}
+.grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+@media (max-width:720px){.grid{grid-template-columns:1fr}}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+h2{font-size:1.05rem;margin:0 0 8px}
+label{display:block;font-size:.88rem;color:var(--muted);margin:12px 0 4px}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:6px;font:inherit;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:.92rem}
+.chk input{width:auto}
+.big{font-size:2.8rem;font-weight:700;line-height:1.1;margin:6px 0 0}
+.note{font-size:.86rem;color:var(--muted);margin-top:12px}
+.warn{background:var(--soft);border-left:3px solid var(--accent);padding:8px 10px;border-radius:4px;margin-top:12px;font-size:.88rem}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin-top:8px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+tr.sel td{font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<h1>Calculadora de captura PStory</h1>
+<p class="sub">Informe o Pokémon (ou o Tier) e veja quantos brokes são necessários para a captura garantida com cada ball.</p>
+<div class="grid">
+<section>
+<h2>Captura</h2>
+<label for="nome">Pokémon (preenche o Tier)</label>
+<input id="nome" list="lista" placeholder="Ex.: Charizard" autocomplete="off">
+<datalist id="lista"></datalist>
+<div class="row">
+<div><label for="tier">Tier</label><select id="tier"></select></div>
+<div><label for="preco">Preço do Pokémon ($)</label><input id="preco" type="number" min="0" step="500"></div>
+</div>
+<label class="chk"><input type="checkbox" id="gift"> Obtido por poke-gift (não capturável como Normal)</label>
+<label class="chk"><input type="checkbox" id="boss"> Sem captura: Boss Item ou impossível de capturar (Normal e Shiny)</label>
+<label>Tipo</label>
+<div class="seg" id="tipo">
+<button type="button" data-v="normal" aria-pressed="true">Normal</button>
+<button type="button" data-v="shiny" aria-pressed="false">Shiny</button>
+</div>
+<label for="ball">Ball</label>
+<select id="ball">
+<option value="menor">Story Ball ou ball elemental (menor valor)</option>
+<option value="ultra">Ultra Ball</option>
+<option value="premier">Premier Ball</option>
+</select>
+<label for="chance">Chance de captura por ball (%, opcional)</label>
+<input id="chance" type="number" min="0" max="100" step="0.1" placeholder="Ex.: 30">
+<div id="sug" class="note" style="margin-top:6px"></div>
+<label for="crit">Critical Catch da Relic (%, opcional)</label>
+<input id="crit" type="number" min="0" max="100" step="0.1" list="critOpts" placeholder="Ex.: 12 (nível 10)">
+<datalist id="critOpts"><option value="1">Nível 1</option><option value="5">Nível 5</option><option value="12">Nível 10</option></datalist>
+<label for="mais1">A captura garantida acontece</label>
+<select id="mais1"><option value="0">Na ball nº igual ao limite</option><option value="1">Na ball seguinte ao limite (limite + 1)</option></select>
+<label style="margin-top:18px"><b>Balls já usadas (opcional)</b></label>
+<div class="row"><div><label for="uUltra">Ultra (130D)</label><input id="uUltra" type="number" min="0" step="1"></div><div><label for="uStory">Story / elemental (250D)</label><input id="uStory" type="number" min="0" step="1"></div></div>
+<div class="row"><div><label for="uPrem">Premier (250D)</label><input id="uPrem" type="number" min="0" step="1"></div><div><label for="uPoke">Poké Ball comum</label><input id="uPoke" type="number" min="0" step="1"></div></div>
+<label for="pPoke">Peso da Poké Ball comum na barra (Story = 1, não confirmado)</label><input id="pPoke" type="number" min="0" step="0.1" value="0">
+</section>
+<section>
+<h2>Resultado</h2>
+<div id="out"></div>
+</section>
+</div>
+<details><summary>Importar lista de Pokémon do site</summary>
+<p class="note" style="margin-top:0">No site, abra uma página da Pokédex, selecione tudo (Ctrl+A), copie (Ctrl+C), cole abaixo e clique em Importar. Repita para cada página. A lista fica salva neste navegador.</p>
+<textarea id="paste" rows="5" style="width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit"></textarea>
+<div class="row" style="margin-top:8px;align-items:center"><button type="button" id="imp" style="padding:9px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:6px;font:inherit;cursor:pointer">Importar</button><span id="impMsg" class="note" style="margin:0"></span></div>
+</details>
+<p class="note">As fórmulas do Normal foram deduzidas dos limites do site: menor valor = preço ÷ 250 e Ultra Ball = preço ÷ 130, ambos arredondados para cima. Elas bateram nos Tiers F, E, D, C e A. Se o número do site for diferente, vale o do site.<br><b>Fontes:</b> Wiki oficial (wiki.pstoryonline.com): Máximas Shiny por Tier e Critical Catch (1% no nível 1, 5% no 5, 12% no 10). Tiers dos Pokémon: wiki oficial, páginas dos Teams (Team Valor, Instinct e Mystic). Site de fã (pstory-utilities.online): limites do Normal por ball e Pokémon que ainda não estão nos Teams. Estimativa minha: a chance por ball (o jogo não divulga) e a forma como o Critical Catch entra na conta.</p>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var fmt=function(n){return n.toLocaleString("pt-BR")};
+var TIERS={A:{max:10400,preco:115500},B:{max:6400,preco:15000},C:{max:3200,preco:22000},D:{max:1200,preco:16000},E:{max:400,preco:4000},F:{max:100,preco:1000},M:{max:null,preco:0},TnF:{max:null,preco:0}};
+var POKE="Bulbasaur:F,Ivysaur:E,Venusaur:D,Charmander:F,Charmeleon:E,Charizard:D,Squirtle:F,Wartortle:E,Blastoise:D,Caterpie:F,Metapod:E,Butterfree:D,Weedle:F,Kakuna:E,Beedrill:D,Pidgey:F,Pidgeotto:E,Pidgeot:D,Rattata:F,Raticate:D,Spearow:F,Fearow:D,Ekans:E,Arbok:D,Pichu:F,Pikachu:D,Raichu:D,Alolan Raichu:B,Sandshrew:E,Sandslash:D,Alolan Sandslash:B,Nidoran (F):F,Nidorina:E,Nidoqueen:D,Nidoran (M):F,Nidorino:E,Nidoking:D,Cleffa:F,Clefairy:E,Clefable:D,Mega Venusaur:M,Mega Charizard:M,Mega Blastoise:M,Mega Raichu X:M,Mega Raichu Y:M,Mega Clefable:M,VenusaurTwo:TnF,CharizardTwo:TnF,BlastoiseTwo:TnF,Ash's Pikachu:TnF,Mega Absol:M,Mega Absol Z:M,Mega Barbaracle:M,Mega Blaziken:M,Mega Camerupt:M,Mega Charizard X:M,Mega Delphox:M,Mega Drampa:M,Mega Emboar:M,Mega Golisopod:M,Mega Houndoom:M,Mega Malamar:M,Mega Pyroar:M,Mega Scizor:M,Mega Scolipede:M,Mega Tyranitar:M,Aerodactyl:B,Armarouge:A,Braviary:A,Ceruledge:A,Crystal Onix:B,Golisopod:A,Grimmsnarl:A,Honchkrow:B,Hydreigon:A,Kingambit:A,Magmortar:B,Noivern:B,Porygon-z:A,Slaking:B,Tyranitar:A,Volcarona:A,Yanmega:B,Zoroark:B,Absol:C,Arcanine:C,Archeops:C,Armaldo:C,Aurorus:C,Barbaracle:C,Bastiodon:C,Bewear:C,Blissey:C,Castform:C,Core Form Minior:C,Corviknight:C,Cradily:C,Drampa:C,Heracross:C,Houndoom:C,Kabutops:C,Kangaskhan:C,Lickilicky:C,Minior:C,Omastar:C,Pinsir:C,Probopass:C,Probopass Mini Nose Form:C,Rampardos:C,Rapidash:C,Scizor:C,Snorlax:C,Torkoal:C,Tyrantrum:C,Weavile:C,Alolan Golem:B,Ambipom:D,Bisharp:C,Bisharp Dark Blade Form:C,Blaziken:C,Bouffalant:D,Camerupt:D,Carbink:C,Charizard:C,Cinderace:C,Cramorant:C,Crustle:C,Delphox:C,Diggersby:D,Dodrio:D,Dusk Lycanroc:D,Emboar:C,Escavalier:D,Exploud:D,Flareon:C,Forretress:D,Gigalith:C,Girafarig:D,Golem:D,Infernape:C,Lopunny:C,Lunatone:C,Magcargo:C,Magmar:D,Magmar Lava Charcoal Form:C,Malamar:C,Midday Lycanroc:D,Midnight Lycanroc:D,Mightyena:C,Miltank:D,Ninetales:D,Onix:D,Orbeetle:D,Pidgeot:D,Porygon2:C,Pupitar:C,Pupitar Drill Pupa Form:C,Purugly:D,Pyroar Female:D,Pyroar Male:D,Sableye:C,Scolipede:D,Scrafty:C,Scyther:C,Solrock:C,Staraptor:C,Sudowoodo:C,Swellow:D,Tauros:D,Toucannon:C,Typhlosion:C,Umbreon:C,Ursaring:C,Vespiquen:C,Vigoroth:D,Vikavolt:D,Vikavolt Charged Elytra Form:C,Wigglytuff:C,Zangoose:D,Zweilous:C,Amaura:D,Anorith:D,Archen:D,Binacle:D,Binacle Splash Partner Form:C,Chansey:D,Charcadet:C,Corvisquire:D,Cranidos:D,Dunsparce:D,Growlithe:D,Houndour:D,Kabuto:D,Larvesta:C,Lickitung:D,Lileep:D,Morgrem:C,Munchlax:D,Nosepass:D,Omanyte:D,Ponyta:D,Rufflet:C,Shieldon:D,Sneasel:D,Stantler:D,Tyrunt:D,Wimpod:C,Zorua:C,Alolan Marowak:B,Alolan Raticate:B,Ariados:C,Beautifly:D,Beedrill:D,Bibarel:D,Butterfree:D,Dustox:D,Eevee:D,Farfetch'd:C,Fearow:D,Furret:D,Galarian Linoone:D,Ledian:D,Linoone:D,Mothim:D,Murkrow:D,Noctowl:D,Parasect:D,Persian:D,Raticate:D,Ribombee:D,Shuckle:D,Spinda:D,Stufful:D,Venomoth:D,Wormadam Plant:D,Wormadam Sandy:D,Wormadam Trash:D,Yanma:D,Mega Alakazam:M,Mega Chesnaught:M,Mega Chimecho:M,Mega Dragonite:M,Mega Eelektross:M,Mega Excadrill:M,Mega Gallade:M,Mega Garchomp:M,Mega Gardevoir:M,Mega Manectric:M,Mega Meganium:M,Mega Raichu X:M,Mega Raichu Y:M,Mega Sceptile:M,Mega Venusaur:M,Mega Victreebel:M,Baxcalibur:A,Dragapult:A,Dragonite:A,Drapion:B,Electivire:B,Garchomp:A,Gogoat:A,Goodra:A,Gothitelle:A,Haxorus:B,Hydrapple:B,Kommo-o:A,Rhyperior:B,Salamence:A,Spiky-eared Pichu:B,Tangrowth:B,Toxtricity Amped:A,Toxtricity Low Key:A,Tsareena:A,Abomasnow:C,Alakazam:C,Arctozolt:C,Cacturne:C,Crobat:C,Dracozolt:C,Eelektross:C,Fan Rotom:C,Frost Rotom:C,Gallade:C,Gallade Shining Blade Form:C,Gardevoir:C,Gliscor:C,Hatterene:C,Heat Rotom:C,Hippowdon Female:C,Hippowdon Male:C,Krookodile:C,Krookodile Dark Claw Form:C,Luxray:C,Magnezone:C,Mow Rotom:C,Mudsdale:C,Rotom:C,Tatsugiri Splash Partner Form:C,Toxapex:C,Tropius:C,Wash Rotom:C,Wobbuffet:C,Alolan Muk:B,Alolan Raichu:B,Altaria:D,Ampharos:C,Appletun:C,Arctibax:C,Breloom:C,Chesnaught:C,Chimecho:D,Claydol:C,Donphan:C,Dragonair:C,Drakloak:C,Dugtrio:D,Electabuzz:D,Electabuzz Charged Battery Form:C,Espeon:C,Excadrill:D,Exeggutor:D,Ferrothorn:D,Flapple:C,Flygon:C,Fraxure:D,Garbodor:C,Grafaiai:C,Grumpig:D,Hakamo-o:C,Jolteon:C,Leafeon:C,Lurantis:D,Magneton:D,Magneton Extra Magnet Form:C,Manectric:D,Meganium:C,Morpeko:D,Mr. Mime:C,Muk:C,Musharna:C,Nidoking:D,Nidoqueen:D,Pachirisu:C,Pawmot:D,Raichu:C,Reuniclus:C,Rhydon:D,Rillaboom:C,Salazzle:D,Sandslash:D,Sceptile:C,Serperior:C,Seviper:C,Shelgon:C,Shiftry:D,Skuntank:D,Sliggoo:C,Swalot:D,Swoobat:D,Torterra:C,Toxicroak:C,Venusaur:C,Victreebel:D,Xatu:D,Cacnea:D,Eelektrik:D,Gabite:C,Gligar:D,Golbat:D,Gothorita:C,Hattrem:D,Hippopotas Female:D,Hippopotas Male:D,Kadabra:D,Kirlia:D,Krokorok:D,Luxio:D,Mareanie:D,Skiddo:C,Skorupi:D,Snover:D,Steenee:C,Toxel:C,Wynaut:D,Arbok:D,Bellossom:D,Chingling:D,Croagunk:D,Dedenne:D,Dipplin:C,Electrode:D,Hypno:D,Jumpluff:D,Marowak:C,Marowak Thick Club Form:C,Minun:D,Pawmo:D,Pikachu:D,Plusle:D,Shiinotic:D,Sunflora:D,Tangela:D,Vileplume:D,Weezing:D,Mega Banette:M,Mega Blastoise:M,Mega Chandelure:M,Mega Clefable:M,Mega Falinks:M,Mega Feraligatr:M,Mega Froslass:M,Mega Gengar:M,Mega Glalie:M,Mega Greninja:M,Mega Gyarados:M,Mega Hawlucha:M,Mega Lucario:M,Mega Lucario Z:M,Mega Metagross:M,Mega Skarmory:M,Mega Staraptor:M,Mega Starmie:M,Mega Steelix:M,Mega Swampert:M,Aegislash:B,Aggron:A,Archaludon:A,Chandelure:A,Cofagrigus:A,Conkeldurr:B,Crabominable:A,Drednaw:A,Dusknoir:B,Giant Magikarp:B,Hariyama:A,Hero Palafin:A,Mamoswine:B,Metagross:A,Mienshao:A,Milotic:B,Palafin:A,Shield Aegislash:B,Tinkaton:A,Togekiss:B,Arctovish:C,Carracosta:C,Dhelmise:C,Dondozo:C,Dracovish:C,Drifblim:C,Falinks:C,Gengar:C,Gyarados:C,Hawlucha:C,Jynx:C,Kingdra:C,Lapras:C,Lucario:C,Lucario Aura Bone Form:C,Machamp:C,Mantine:C,Mismagius:C,Orthworm:C,Pangoro:C,Relicanth:C,Sawk:D,Skarmory:C,Slowking:C,Spiritomb:C,Steelix:C,Trevenant:C,Walrein:C,Alolan Ninetales:B,Alolan Sandslash:B,Avalugg:C,Azumarill:D,Banette:C,Beartic:C,Blastoise:C,Bronzong:C,Clefable:C,Cloyster:D,Comfey:C,Crawdaunt:D,Cryogonal:D,Dachsbun:C,Dewgong:D,Doublade:C,Duraludon:C,Dusclops:D,Empoleon:C,Feraligatr:C,Froslass:D,Gastrodon West:D,Glaceon:C,Glalie:D,Golduck:C,Gourgeist:D,Granbull:D,Greninja:C,Gurdurr:C,Hitmonchan:C,Hitmonlee:C,Hitmontop:C,Houndstone:C,Inteleon:C,Jellicent Female:D,Jellicent Male:D,Lanturn:D,Lanturn Burst Light Form:C,Ludicolo:C,Mawile:D,Medicham:D,Metang:C,Misdreavus:D,Octillery:D,Pelipper:C,Piloswine:D,Piloswine Mud Stick Form:C,Politoed:C,Poliwrath:C,Poliwrath Champion Belt Form:C,Samurott:C,Slowbro:D,Starmie:D,Swampert:C,Sylveon:C,Tentacruel:D,Tinkatuff:C,Togetic:D,Vanilluxe:C,Vaporeon:C,Whiscash:D,Chewtle:C,Crabrawler:C,Finizen:C,Haunter:D,Lairon:C,Lampent:C,Machoke:D,Makuhita:C,Mienfoo:C,Pancham:D,Pancham Dark Fist Form:C,Phantump:D,Primeape:D,Riolu:D,Seadra:D,Seadra Flapping Bubbles Form:C,Sealeo:D,Smoochum:D,Tirtouga:D,Yamask:C,Corsola:D,Delibird:D,Drifloon:D,Honedge:D,Kingler:D,Lombre:D,Psyduck:D,Quagsire:D,Qwilfish:D,Seaking:D,Dratini:E,Noibat:E,Vulpix:E,Togepi:F,Applin:E,Mudkip:F,Chikorita:F,Treecko:F,Elekid:E,Starly:F,Gastly:F,Axew:E,Litleo:E".split(",");
+var MAP={};
+POKE.forEach(function(s){var i=s.lastIndexOf(":");MAP[s.slice(0,i).toLowerCase()]=s.slice(i+1);var o=document.createElement("option");o.value=s.slice(0,i);$("lista").appendChild(o)});
+Object.keys(TIERS).sort().forEach(function(t){var o=document.createElement("option");o.value=t;o.textContent="Tier "+t;$("tier").appendChild(o)});
+var tipo="normal",SUG={F:[1.1,0.5,2.3,8,702],E:[0.5,0.21,0.98,8,1615],D:[0.24,0.07,0.63,4,1638]};
+function setTier(t){$("tier").value=t;$("preco").value=TIERS[t].preco;$("gift").checked=false;$("boss").checked=false}
+setTier("F");
+function limites(preco){return{menor:Math.ceil(preco/250),ultra:Math.ceil(preco/130)}}
+function render(){
+ var t=$("tier").value,preco=+$("preco").value,max=TIERS[t].max,b=$("ball").value,gift=$("gift").checked;
+ var nome=$("nome").value.trim().replace(/</g,"&lt;");
+ var S=SUG[t],vf=function(x){return String(x).replace(".",",")};
+ $("sug").innerHTML=S?"Estimativa da comunidade para a Premier Ball (Shiny, Tier "+t+"): cerca de "+vf(S[0])+"% por ball (faixa de "+vf(S[1])+"% a "+vf(S[2])+"%, "+S[3]+" capturas). Provavelmente otimista, pois só vemos quem capturou. <a href='#' id='usaSug'>Usar</a>":"Sem estimativa para o Tier "+t+" (poucos dados).";
+ var ua=$("usaSug");if(ua)ua.onclick=function(e){e.preventDefault();$("chance").value=S[0];$("ball").value="premier";render()};
+ var titulo=(nome?"<b>"+nome+"</b> · ":"")+"Tier "+t+" · "+(tipo==="shiny"?"Shiny":"Normal");
+ var h="<div>"+titulo+"</div>";if($("boss").checked){$("out").innerHTML=h+"<div class='big'>—</div><div>Sem captura. O site indica Boss Item (1x para o Normal, 10x para o Shiny) ou impossível de capturar, e não mostra limites.</div>";return}if(t==="TnF"){$("out").innerHTML=h+"<div class='big'>—</div><div>O site mostra limites indisponíveis para o Tier TnF, tanto no Normal quanto no Shiny. Ele não é obtido por captura comum (origem indicada no site, por exemplo Mewtwo ou Pack).</div>";return}if(t==="M"){$("out").innerHTML=h+"<div class='big'>—</div><div>Mega não pode ser capturado, nem Normal nem Shiny. Ele é obtido com a Mega Stone correspondente.</div>";return}
+ var nomes={menor:"Story Ball / elemental",ultra:"Ultra Ball",premier:"Premier Ball"};
+ var valor,linhas=[];
+ if(tipo==="shiny"){
+  valor=b==="ultra"?Math.ceil(max/0.52):max;
+  ["menor","ultra","premier"].forEach(function(k){linhas.push([nomes[k],fmt(k==="ultra"?Math.ceil(max/0.52):max)])});
+ }else if(gift){
+  valor=null;
+ }else if(!(preco>0)){
+  valor=null;
+ }else{
+  var L=limites(preco);
+  valor=b==="ultra"?L.ultra:L.menor;
+  linhas=[[nomes.menor,fmt(L.menor)],[nomes.ultra,fmt(L.ultra)],[nomes.premier,fmt(L.menor)]];
+ }
+ if(valor===null){
+  h+="<div class='big'>—</div><div>"+(gift&&tipo==="normal"?"Obtido por poke-gift: o Normal não é capturável.":"Informe o preço do Pokémon.")+"</div>";
+ }else{
+  h+="<div class='big'>"+fmt(valor)+" brokes</div><div>até o limite com a "+nomes[b]+"</div>";
+  if(b==="premier")h+="<div class='warn'>A Premier Ball não garante a captura ao atingir o limite. Os arremessos contam para o progresso, mas a captura depende só da Chance Base.</div>";
+  var sel=b==="menor"?0:b==="ultra"?1:2;
+  h+="<table><tr><th>Ball</th><th>Brokes</th></tr>"+linhas.map(function(r,i){return "<tr"+(i===sel?" class='sel'":"")+"><td>"+r[0]+"</td><td>"+r[1]+"</td></tr>"}).join("")+"</table>";
+ }
+ if(tipo==="shiny")h+="<div class='note'>No Shiny, a Máxima do Tier é contada em Story Balls. A Ultra vale 0,52 de uma Story, então precisa de cerca de 1,92 vezes mais balls para o mesmo limite.</div>";
+ var p0=parseFloat($("chance").value)/100,cc=(parseFloat($("crit").value)||0)/100,pc=p0+(1-p0)*Math.min(Math.max(cc,0),1);
+ if(valor!==null&&pc>0&&pc<=1){
+  var N=valor+($("mais1").value==="1"?1:0),prem=b==="premier";
+  var qn=function(x){if(pc>=1)return 1;var n=Math.ceil(Math.log(1-x)/Math.log(1-pc));return prem?n:Math.min(n,N)};
+  var ex=pc>=1?1:(prem?1/pc:(1-Math.pow(1-pc,N))/pc);
+  h+="<table><tr><th>Estimativa de balls</th><th>Balls</th></tr><tr><td>Média esperada</td><td>"+fmt(Math.round(ex))+"</td></tr><tr><td>50% de chance até</td><td>"+fmt(qn(.5))+"</td></tr><tr><td>90% de chance até</td><td>"+fmt(qn(.9))+"</td></tr><tr><td>99% de chance até</td><td>"+fmt(qn(.99))+"</td></tr>"+(prem?"":"<tr><td>Pior caso (captura garantida)</td><td>"+fmt(N)+"</td></tr>")+"</table><div class='note'>Estimativa com chance constante por ball. Não inclui Persistência nem bônus de captura. Critical Catch: "+(cc>0?"tratado como chance extra de captura ("+(pc*100).toFixed(1).replace(".",",")+"% efetivo por ball). É uma suposição minha, a wiki não explica como ele se combina":"não informado")+""+(prem?". A Premier Ball não tem captura garantida, por isso não há pior caso.":".")+"</div>";
+ }
+ var uu=+$("uUltra").value||0,us=+$("uStory").value||0,up=+$("uPrem").value||0,uk=+$("uPoke").value||0,pk=+$("pPoke").value||0;
+ var gasto=uu*130+us*250+up*250+uk*5,spent=uu*0.52+us+up+uk*pk;
+ if(spent>0&&!(tipo==="normal"&&(gift||!(preco>0)))){
+  var tgt=tipo==="shiny"?max:preco/250,pr=Math.min(100,spent/tgt*100),rem=Math.max(0,tgt-spent);
+  var wb=b==="ultra"?0.52:1,pm=b==="premier",nr=Math.ceil(rem/wb),ex2="<tr><td>Faltam ("+nomes[b]+") até garantir</td><td>"+(pm?"sem garantia":fmt(nr))+"</td></tr>";
+  if(pc>0&&pc<=1){var cap=pm?Infinity:nr,qf=function(x){return pc>=1?1:Math.min(cap,Math.ceil(Math.log(1-x)/Math.log(1-pc)))};ex2+="<tr><td>Média esperada daqui para frente</td><td>"+fmt(Math.round(pc>=1?1:pm?1/pc:(1-Math.pow(1-pc,cap))/pc))+"</td></tr><tr><td>50% de chance em</td><td>"+fmt(qf(.5))+"</td></tr><tr><td>90% de chance em</td><td>"+fmt(qf(.9))+"</td></tr>"}
+  h+="<table><tr><th>Progresso</th><th></th></tr><tr><td>Gasto até agora (em D)</td><td>"+fmt(gasto)+"D</td></tr><tr><td>Progresso estimado</td><td>"+pr.toFixed(1).replace(".",",")+"%</td></tr><tr><td>Falta para o limite</td><td>"+fmt(Math.ceil(rem))+" Story</td></tr><tr><td>Em Ultra Balls</td><td>"+fmt(Math.ceil(rem/0.52))+"</td></tr><tr><td>Em Story / elementais</td><td>"+fmt(Math.ceil(rem))+"</td></tr>"+ex2+"</table><div class='note'>A barra conta em unidades de Story Ball: Ultra = 0,52 e Story, Premier e elementais = 1. Shiny: alvo = Máxima do Tier. Normal: alvo = preço ÷ 250. Deduzido de prints da barra. A Premier Ball conta no progresso, mas não garante a captura no limite. Poké Ball comum: só o Crabrawler (Normal) a testou e ela não contou, o peso no Shiny ainda não foi confirmado. Cherish e outras elementais entram no campo Story / elemental. Great e Super ainda não foram testadas.</div>";
+ }
+ $("out").innerHTML=h;
+}
+var FLAG={},DB={};
+function addPoke(n,t,f){var k=n.toLowerCase();if(!(k in MAP)){var o=document.createElement("option");o.value=n;$("lista").appendChild(o)}MAP[k]=t;if(f)FLAG[k]=f;else delete FLAG[k]}
+function parse(txt){
+ var L=txt.split(/\r?\n/).map(function(s){return s.trim()}).filter(Boolean),idx=[],i,c=0;
+ for(i=1;i<L.length;i++){if(/^N[ií]vel\b/i.test(L[i]))idx.push(i)}
+ idx.forEach(function(p,j){
+  var name=L[p-1],end=j+1<idx.length?idx[j+1]-1:L.length,t=null,f=null;
+  for(var q=p;q<end;q++){var s=L[q],m=s.match(/\bTier\s*([A-FM])\b/i);
+   if(m&&!t)t=m[1].toUpperCase();else if(/\bTnF\b/i.test(s)&&!t)t="TnF";
+   if(/POKE.?GIFT/i.test(s))f="gift";
+   if(/^BOSS$/i.test(s)||/IMPOSS[IÍ]VEL/i.test(s))f="boss"}
+  if(t&&name){addPoke(name,t,f);DB[name.toLowerCase()]=[name,t,f];c++}});
+ return c}
+try{var st=JSON.parse(localStorage.getItem("pstoryDB")||"{}");Object.keys(st).forEach(function(k){var a=st[k];DB[k]=a;addPoke(a[0],a[1],a[2])})}catch(e){}
+$("imp").onclick=function(){var n=parse($("paste").value);try{localStorage.setItem("pstoryDB",JSON.stringify(DB))}catch(e){}
+ $("impMsg").textContent=n?n+" Pokémon importados. Total na lista: "+Object.keys(MAP).length+".":"Nenhum Pokémon reconhecido. Cole o texto completo da página.";$("paste").value=""};
+$("nome").addEventListener("input",function(){var k=$("nome").value.trim().toLowerCase(),t=MAP[k];if(t&&TIERS[t]){setTier(t);var f=FLAG[k];$("gift").checked=f==="gift";$("boss").checked=f==="boss"}render()});
+$("tier").addEventListener("change",function(){setTier($("tier").value);render()});
+["preco","gift","boss","ball","chance","mais1","crit","uUltra","uStory","uPrem","uPoke","pPoke"].forEach(function(i){$(i).addEventListener("input",render)});
+document.querySelectorAll("#tipo button").forEach(function(b){b.onclick=function(){tipo=b.dataset.v;document.querySelectorAll("#tipo button").forEach(function(x){x.setAttribute("aria-pressed",x===b)});render()}});
+render();
+</script>
+</body>
+</html>
